@@ -63,7 +63,38 @@ TransactionT **leituraArquivo(int *limiar)
     (*limiar) = tempo;
     return transacoes;
 }
+
+void imprime_grafo(int **grafo, int tamanho)
+{
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            printf("%d \t", grafo[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+
+int **aloca_grafo(int tamanho)
+{
+    int **grafo = (int **)calloc(tamanho, sizeof(int *));
+    for (int i = 0; i < tamanho; i++) {
+        grafo[i] = (int *)calloc(tamanho, sizeof(int));
+
+        for (int j = 0; j < tamanho; j++) {
+            grafo[i][j] = 0;
+        }
+    }
+
+    return grafo;
+    
+}
 int main() {
-    int limiar = 10;
-    TransactionT **transacoes = leituraArquivo(&limiar);
+    int tamanho = 10;
+    int **grafo;
+    TransactionT **transacoes = leituraArquivo(&tamanho);
+
+    grafo = aloca_grafo(tamanho);
+
+    imprime_grafo(grafo, tamanho);
 }
