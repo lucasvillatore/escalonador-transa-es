@@ -31,7 +31,7 @@ void mostraTransacao(TransactionT *transacao)
     printf("atributo = %c\n", transacao->atributo);
 }
 
-TransactionT **leitura_arquivo(int *limiar) 
+TransactionT **leituraArquivo(int *limiar) 
 {
     TransactionT **transacoes;
     transacoes = (TransactionT **)malloc((*limiar) * sizeof(TransactionT *));
@@ -65,5 +65,5 @@ TransactionT **leitura_arquivo(int *limiar)
 }
 int main() {
     int limiar = 10;
-    TransactionT **transacoes = leitura_arquivo(&limiar);
+    TransactionT **transacoes = leituraArquivo(&limiar);
 }
