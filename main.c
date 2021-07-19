@@ -47,7 +47,11 @@ TransactionT **leitura_arquivo(int *limiar)
         if (tempo >= (*limiar)) {
             (*limiar) *= 2;
             transacoes = (TransactionT **)realloc(transacoes,(*limiar) * sizeof(TransactionT *));
-            printf("Realoquei a memoria\n");
+
+            if (!transacoes) {
+                printf("Problema ao realocar a memória\n");
+                exit(0);
+            }
         }
         transacoes[tempo - 1] = criaTransacao(tempo, identificador, operacao, atributo);
     }
