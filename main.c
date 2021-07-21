@@ -183,6 +183,25 @@ int **aloca_grafo(int tamanho, int numero_vertices, TransactionT **transacoes)
     
 }
 
+int conta_tamanho_array(int *array) 
+{
+    int j;
+    for (j = 0; array[j] != -1; j++) {
+    }
+
+    return j;
+}
+
+int tem_ciclo(int **grafo, int *tarefa)
+{
+    return 1;
+}
+
+int visao_equivalente(int **grafo, int *tarefa)
+{
+    return 1;
+}
+
 int main() {
     int tamanho = 10;
     int numero_vertices = 0;
@@ -194,15 +213,31 @@ int main() {
 
     TransactionT **transacoes = leituraArquivo(&tamanho, &numero_vertices, &escalonadores, &numero_escalonacoes);
 
-    // for (int i = 0; i < numero_escalonacoes; i++) {
-    //     printf("Escalonação %d\n", i + 1);
-    //     int *tarefa_escalonada = escalonadores[i];
-    //     for (int j = 0; tarefa_escalonada[j] != -1; j++) {
-    //         printf("id = %d\n", tarefa_escalonada[j]);
-    //     }
-    //     printf("\n");
-    // }
     grafo = aloca_grafo(tamanho, numero_vertices, transacoes);
+    for (int i = 0; i < numero_escalonacoes; i++) {
+        int *tarefa_escalonada = escalonadores[i];
+        int tamanho_array = conta_tamanho_array(tarefa_escalonada);
+        int k = 0;
+        printf("%d ", i + 1);
+        for (k = 0; k < tamanho_array - 1; k++) {
+            printf("%d,", tarefa_escalonada[k]);
+        }
+        printf("%d ", tarefa_escalonada[k]);
 
-    imprime_grafo(grafo, numero_vertices);
+        if (tem_ciclo(grafo, tarefa_escalonada)) {
+            printf("NS ");
+        }else{
+            printf("NV ");
+        }
+
+        if (visao_equivalente(grafo, tarefa_escalonada)) {
+            printf("SS");
+        }else {
+            printf("NV");
+        }
+
+        printf("\n");
+    }
+
+    // imprime_grafo(grafo, numero_vertices);
 }
