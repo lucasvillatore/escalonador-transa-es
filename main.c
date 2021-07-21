@@ -44,12 +44,12 @@ int id_esta_no_array(int *array_ids, int id, int tamanho)
 
 int operacao_escrita(TransactionT *transacao)
 {
-    return transacao->operacao == 'R' ? 1 : 0;
+    return transacao->operacao == 'W' ? 1 : 0;
 }
 
 int operacao_leitura(TransactionT *transacao)
 {
-    return transacao->operacao == 'W' ? 1 : 0;
+    return transacao->operacao == 'R' ? 1 : 0;
 }
 
 int operacao_commit(TransactionT *transacao)
@@ -144,7 +144,15 @@ int mesmo_identificador(TransactionT *transacao_a, TransactionT *transacao_b)
     return transacao_a->identificador == transacao_b->identificador ? 1 : 0;
 }
 
-int **aloca_grafo(int tamanho, int numero_vertices, TransactionT **transacoes)
+int calcula_tamanho_array(int *array) 
+{
+    int i;
+    for (i = 0; array[i] != -1; i++);
+
+    return i;
+}
+
+int **aloca_grafo(int tamanho, int numero_vertices, TransactionT **transacoes, int **escalonadores, int numero_escalonacoes)
 {
     int **grafo = (int **)calloc(numero_vertices, sizeof(int *));
     for (int i = 0; i < numero_vertices; i++) {
@@ -155,26 +163,41 @@ int **aloca_grafo(int tamanho, int numero_vertices, TransactionT **transacoes)
         }
     }
 
-    for (int i = 0; i < tamanho; i++) {
-        TransactionT *transacao_a = transacoes[i];
-        int escrita_a = operacao_escrita(transacao_a);
-        int leitura_a = operacao_leitura(transacao_a);
-        int commit_encontrado = 0;
+    /**
+     * Tenho uma matriz de escalonadores
+     * [0] = 1,2,3
+     * [1] = 4,5,6
+     * [2] = 6,7
+     * 
+     * Tenho que percorrer 1 2 3
+     * 
+     **/
+    printf("%d\n", numero_escalonacoes);
+    for (int i = 0; i < numero_escalonacoes; i++) {
+        int tamanho_array = calcula_tamanho_array(escalonadores[i]);
 
-        for (int j = i + 1; j < tamanho; j++) {
-            TransactionT *transacao_b = transacoes[j];
-            int escrita_b = operacao_escrita(transacao_b);
-            int leitura_b = operacao_leitura(transacao_b);
+        for (int j = 0; j < tamanho; j++) {
+            TransactionT *transacao_a = transacoes[j];
+            if (!id_esta_no_array(escalonadores[i], transacao_a->identificador, tamanho_array) || operacao_commit(transacao_a)) {
+                continue;
+            } 
 
-            if (escrita_a && leitura_b || escrita_b && leitura_a || escrita_a && escrita_b) {
-                
-                if (mesmo_atributo(transacao_a, transacao_b) && !mesmo_identificador(transacao_a, transacao_b) && !commit_encontrado) {
+            for (int k = j + 1; k < tamanho; k++) {
+                TransactionT *transacao_b = transacoes[k];
+                if (!id_esta_no_array(escalonadores[i], transacao_b->identificador, tamanho_array) || operacao_commit(transacao_b)) {
+                    continue;
+                }
+                mostraTransacao(transacao_a);
+                mostraTransacao(transacao_b);
+
+                if (
+                    transacao_a->atributo == transacao_b->atributo &&
+                    transacao_a->identificador != transacao_b->identificador &&
+                    (operacao_escrita(transacao_a) || operacao_escrita(transacao_b))
+
+                ){
                     grafo[transacao_a->identificador - 1][transacao_b->identificador - 1] = 1;
                 }
-            }
-
-            if (operacao_commit(transacao_b)) {
-                commit_encontrado = 1;
             }
         }
     }
@@ -213,7 +236,7 @@ int main() {
 
     TransactionT **transacoes = leituraArquivo(&tamanho, &numero_vertices, &escalonadores, &numero_escalonacoes);
 
-    grafo = aloca_grafo(tamanho, numero_vertices, transacoes);
+    grafo = aloca_grafo(tamanho, numero_vertices, transacoes, escalonadores, numero_escalonacoes);
     for (int i = 0; i < numero_escalonacoes; i++) {
         int *tarefa_escalonada = escalonadores[i];
         int tamanho_array = conta_tamanho_array(tarefa_escalonada);
@@ -239,5 +262,5 @@ int main() {
         printf("\n");
     }
 
-    // imprime_grafo(grafo, numero_vertices);
+    imprime_grafo(grafo, numero_vertices);
 }
