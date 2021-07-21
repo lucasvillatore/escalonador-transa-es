@@ -152,7 +152,7 @@ int calcula_tamanho_array(int *array)
     return i;
 }
 
-int **aloca_grafo(int tamanho, int numero_vertices, TransactionT **transacoes, int **escalonadores, int numero_escalonacoes)
+int **aloca_grafo(int numero_vertices, int *tarefa_escalonada, int numero_transacoes, TransactionT **transacoes)
 {
     int **grafo = (int **)calloc(numero_vertices, sizeof(int *));
     for (int i = 0; i < numero_vertices; i++) {
@@ -163,41 +163,25 @@ int **aloca_grafo(int tamanho, int numero_vertices, TransactionT **transacoes, i
         }
     }
 
-    /**
-     * Tenho uma matriz de escalonadores
-     * [0] = 1,2,3
-     * [1] = 4,5,6
-     * [2] = 6,7
-     * 
-     * Tenho que percorrer 1 2 3
-     * 
-     **/
-    printf("%d\n", numero_escalonacoes);
-    for (int i = 0; i < numero_escalonacoes; i++) {
-        int tamanho_array = calcula_tamanho_array(escalonadores[i]);
+    for (int j = 0; j < numero_vertices; j++) {
+        TransactionT *transacao_a = transacoes[j];
+        if (!id_esta_no_array(tarefa_escalonada, transacao_a->identificador, numero_vertices) || operacao_commit(transacao_a)) {
+            continue;
+        } 
 
-        for (int j = 0; j < tamanho; j++) {
-            TransactionT *transacao_a = transacoes[j];
-            if (!id_esta_no_array(escalonadores[i], transacao_a->identificador, tamanho_array) || operacao_commit(transacao_a)) {
+        for (int k = j + 1; k < numero_transacoes; k++) {
+            TransactionT *transacao_b = transacoes[k];
+            if (!id_esta_no_array(tarefa_escalonada, transacao_b->identificador, numero_vertices) || operacao_commit(transacao_b)) {
                 continue;
-            } 
+            }
 
-            for (int k = j + 1; k < tamanho; k++) {
-                TransactionT *transacao_b = transacoes[k];
-                if (!id_esta_no_array(escalonadores[i], transacao_b->identificador, tamanho_array) || operacao_commit(transacao_b)) {
-                    continue;
-                }
-                mostraTransacao(transacao_a);
-                mostraTransacao(transacao_b);
+            if (
+                transacao_a->atributo == transacao_b->atributo &&
+                transacao_a->identificador != transacao_b->identificador &&
+                (operacao_escrita(transacao_a) || operacao_escrita(transacao_b))
 
-                if (
-                    transacao_a->atributo == transacao_b->atributo &&
-                    transacao_a->identificador != transacao_b->identificador &&
-                    (operacao_escrita(transacao_a) || operacao_escrita(transacao_b))
-
-                ){
-                    grafo[transacao_a->identificador - 1][transacao_b->identificador - 1] = 1;
-                }
+            ){
+                grafo[transacao_a->identificador - 1][transacao_b->identificador - 1] = 1;
             }
         }
     }
@@ -215,15 +199,16 @@ int conta_tamanho_array(int *array)
     return j;
 }
 
-int tem_ciclo(int **grafo, int *tarefa)
-{
-    return 1;
-}
-
 int visao_equivalente(int **grafo, int *tarefa)
 {
     return 1;
 }
+
+int tem_ciclo(int **grafo, int tamanho_grafo)
+{
+    return 1;
+}
+
 
 int main() {
     int tamanho = 10;
@@ -236,7 +221,6 @@ int main() {
 
     TransactionT **transacoes = leituraArquivo(&tamanho, &numero_vertices, &escalonadores, &numero_escalonacoes);
 
-    grafo = aloca_grafo(tamanho, numero_vertices, transacoes, escalonadores, numero_escalonacoes);
     for (int i = 0; i < numero_escalonacoes; i++) {
         int *tarefa_escalonada = escalonadores[i];
         int tamanho_array = conta_tamanho_array(tarefa_escalonada);
@@ -247,20 +231,23 @@ int main() {
         }
         printf("%d ", tarefa_escalonada[k]);
 
-        if (tem_ciclo(grafo, tarefa_escalonada)) {
+        grafo = aloca_grafo(tamanho_array, tarefa_escalonada, tamanho, transacoes);
+        int ciclo = tem_ciclo(grafo, tamanho_array);
+
+        if (ciclo) {
             printf("NS ");
         }else{
-            printf("NV ");
+            printf("SS ");
         }
 
-        if (visao_equivalente(grafo, tarefa_escalonada)) {
-            printf("SS");
+        if (!ciclo || visao_equivalente(grafo, tarefa_escalonada)) {
+            printf("SV");
         }else {
             printf("NV");
         }
 
         printf("\n");
+        imprime_grafo(grafo, tamanho_array);
     }
 
-    imprime_grafo(grafo, numero_vertices);
 }
