@@ -201,14 +201,72 @@ int conta_tamanho_array(int *array)
 
 int visao_equivalente(int **grafo, int *tarefa)
 {
-    return 1;
+    return 0;
 }
 
-int tem_ciclo(int **grafo, int tamanho_grafo)
+int vertice_visitado(int *nos_visitados, int vertice)
 {
-    return 1;
+    for (int i = 0; nos_visitados[i] != -2; i++) {
+        if (nos_visitados[i] == vertice) {
+            return 1;
+        }
+    }
+    
+    return 0;
 }
 
+void adiciona_vertice_nos_visitados(int **nos_visitados, int vertice)
+{
+    int i;
+    for (i = 0; (*nos_visitados)[i] != -1; i++) {
+    }
+
+    (*nos_visitados)[i] = vertice;
+}
+
+int *pega_vizinhos_vertices(int **grafo, int vertice, int tamanho_grafo, int *num_vizinhos)
+{
+    int *vizinhos = (int *)malloc(tamanho_grafo * sizeof(int));
+    for (int i = 0; i < tamanho_grafo; i++) {
+        if (grafo[vertice][i] > 0) {
+            vizinhos[(*num_vizinhos)] = i;
+            (*num_vizinhos)++;
+        }
+    }
+
+    return vizinhos;
+}
+
+int tem_ciclo(int **grafo, int vertice, int tamanho_grafo, int **nos_visitados)
+{
+    if (vertice_visitado((*nos_visitados), vertice)) {
+        return 1;
+    }
+    adiciona_vertice_nos_visitados(nos_visitados, vertice);
+
+    int resultado = 0;
+    int num_vizinhos = 0;
+    int *vizinhos = pega_vizinhos_vertices(grafo, vertice, tamanho_grafo, &num_vizinhos);
+    // para cada vizinho, chamo busca em profundidade
+    for (int i = 0; i < num_vizinhos; i++) {
+        resultado = tem_ciclo(grafo, vizinhos[i], tamanho_grafo, nos_visitados);
+    }
+
+    return resultado;
+}
+
+int *aloca_array_visitados(int tamanho)
+{
+    int *array = (int *)malloc((tamanho + 1) * sizeof(int));
+
+    for (int i = 0; i < tamanho; i++) {
+        array[i] = -1;
+    }
+
+    array[tamanho] = -2;
+
+    return array;
+}
 
 int main() {
     int tamanho = 10;
@@ -232,7 +290,10 @@ int main() {
         printf("%d ", tarefa_escalonada[k]);
 
         grafo = aloca_grafo(tamanho_array, tarefa_escalonada, tamanho, transacoes);
-        int ciclo = tem_ciclo(grafo, tamanho_array);
+
+        int *nos_visitados = aloca_array_visitados(tamanho_array);
+        
+        int ciclo = tem_ciclo(grafo, 0, tamanho_array, &nos_visitados);
 
         if (ciclo) {
             printf("NS ");
@@ -247,7 +308,6 @@ int main() {
         }
 
         printf("\n");
-        imprime_grafo(grafo, tamanho_array);
     }
 
 }
