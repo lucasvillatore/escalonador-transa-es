@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+// Estrutura utilizada para guardar as operações
 typedef struct TransactionT {
     int tempo;
     int identificador;
@@ -12,6 +12,7 @@ typedef struct TransactionT {
 
 typedef int EscalonadorT;
 
+// Aloca e guardar a operação
 TransactionT *criaTransacao(int tempo, int identificador, char operacao, char atributo)
 {
     TransactionT *transacao = (TransactionT *)malloc(sizeof(TransactionT) * 50);
@@ -24,6 +25,7 @@ TransactionT *criaTransacao(int tempo, int identificador, char operacao, char at
     return transacao;
 }
 
+// Imprime linha de operação
 void mostraTransacao(TransactionT *transacao)
 {
     printf("tempo = %d ", transacao->tempo);
@@ -32,6 +34,7 @@ void mostraTransacao(TransactionT *transacao)
     printf("atributo = %c\n", transacao->atributo);
 }
 
+// Utils: Verificada se valor esta no array
 int id_esta_no_array(int *array_ids, int id, int tamanho)
 {
     for (int i = 0; i < tamanho; i++) {
@@ -41,22 +44,22 @@ int id_esta_no_array(int *array_ids, int id, int tamanho)
     }
     return 0;
 }
-
+// Verifica se a opreção é escrita (W)
 int operacao_escrita(TransactionT *transacao)
 {
     return transacao->operacao == 'W' ? 1 : 0;
 }
-
+// Verifica se a opreção é leitura (R)
 int operacao_leitura(TransactionT *transacao)
 {
     return transacao->operacao == 'R' ? 1 : 0;
 }
-
+// Verifica se a opreção é commit (C)
 int operacao_commit(TransactionT *transacao)
 {
     return transacao->operacao == 'C' ? 1 : 0;
 }
-
+// Faz a leitura do arquivo de entrada salvando as entradas e separando em escalonamentos (linhas para a saida).
 TransactionT **leituraArquivo(int *limiar, EscalonadorT ***escalonador, int *numero_escalonacoes) 
 {
     TransactionT **transacoes;
@@ -121,7 +124,7 @@ TransactionT **leituraArquivo(int *limiar, EscalonadorT ***escalonador, int *num
     (*limiar) = indice;
     return transacoes;
 }
-
+// Imrpime o grafo (matriz de adjacencia)
 void imprime_grafo(int **grafo, int tamanho)
 {
     for (int i = 0; i < tamanho; i++) {
@@ -132,25 +135,18 @@ void imprime_grafo(int **grafo, int tamanho)
     }
 }
 
-
+// Verifica se duas operações estão sendo feitas no mesmo atributo
 int mesmo_atributo(TransactionT *transacao_a, TransactionT *transacao_b)
 {
     return transacao_a->atributo == transacao_b->atributo ? 1 : 0;
 }
-
+// Verifica se duas operações tem o mesmo identificador
 int mesmo_identificador(TransactionT *transacao_a, TransactionT *transacao_b)
 {
     return transacao_a->identificador == transacao_b->identificador ? 1 : 0;
 }
 
-int calcula_tamanho_array(int *array) 
-{
-    int i;
-    for (i = 0; array[i] != -1; i++);
-
-    return i;
-}
-
+// Aloca o grafo (matriz de adjacencia)
 int **aloca_grafo(int numero_vertices, int *tarefa_escalonada, int numero_transacoes, TransactionT **transacoes)
 {
     int **grafo = (int **)calloc(numero_vertices, sizeof(int *));
@@ -188,7 +184,7 @@ int **aloca_grafo(int numero_vertices, int *tarefa_escalonada, int numero_transa
     return grafo;
     
 }
-
+// Calcula o tamanho do array
 int conta_tamanho_array(int *array) 
 {
     int j;
@@ -197,14 +193,14 @@ int conta_tamanho_array(int *array)
 
     return j;
 }
-
+// Utilizado na permutação (troca temporaria de indices)
 void troca_ordem_id(int *inicio, int *fim) 
 {
     int tmp = (*fim);
     (*fim) = (*inicio);
     (*inicio) = tmp;
 }
-
+// compara se duas operações são iguais
 int mesmo_objeto(TransactionT *transacao_a, TransactionT *transacao_b)
 {
     if (transacao_a->atributo != transacao_b->atributo) {
@@ -222,7 +218,7 @@ int mesmo_objeto(TransactionT *transacao_a, TransactionT *transacao_b)
 
     return 1;
 }
-
+// Testa as regras para retornar 1,0 caso respectivamente equivalente (SV) ou não equivalente (NV) .
 int testa_visao_equivalente(TransactionT **transacoes, int tamanho_transacoes, int *escalonacao, int tamanho_escalonacao)
 {
     // regra 1 vem de brinde, ja sabemos que aquilo é verdade
@@ -247,13 +243,14 @@ int testa_visao_equivalente(TransactionT **transacoes, int tamanho_transacoes, i
         }
         for (int j = 0; j < k; j++) {
             if (
+                //verifica se é leitura em seguinda permuta com as outras operações verificando se o identificador é diferente,
                 operacao_leitura(transacaoOrdenada[j]) || 
                 transacaoOrdenada[i]->identificador == transacaoOrdenada[j]->identificador ||
                 transacaoOrdenada[i]->atributo != transacaoOrdenada[j]->atributo
             ) {
                 continue;
             }
-
+                //se é uma escrita e se é no mesmo atributo para verificar a partir do tempo das duas se a ordem da agenda original foi violada.
             if (transacaoOrdenada[j]->tempo > transacaoOrdenada[i]->tempo) {
                 return 0;
             }
@@ -261,8 +258,7 @@ int testa_visao_equivalente(TransactionT **transacoes, int tamanho_transacoes, i
         }
     }
 
-    // printf("chego aqui\n");
-    // return 0;
+
     //Se o operador w(y) em Tk é a ultima escrita de y em S, então w(y) em Tk deve ser a última escrita em S'
     TransactionT *ultima_operacao = transacaoOrdenada[k - 1];
     TransactionT *ultima_operacao_normal = transacoes[0];
@@ -271,7 +267,7 @@ int testa_visao_equivalente(TransactionT **transacoes, int tamanho_transacoes, i
             ultima_operacao_normal = transacoes[i];
         }
     }
-
+    // para cada ultima escrita numa Tansação(i) é verificada se permaceu como ultima operação da mesma transação na agenda S'.
     if (operacao_escrita(ultima_operacao_normal)) {
         if (mesmo_objeto(ultima_operacao, ultima_operacao_normal)) {
             return 1;
@@ -284,7 +280,7 @@ int testa_visao_equivalente(TransactionT **transacoes, int tamanho_transacoes, i
 
 }
 
-
+//Ocorre a permutação das transações presentes no escalonamento (ex:[1,2],[2,1] ) e chama a função testa_visao_equivalente.
 int visao_equivalente(int *escalonacao, int inicio, int fim, TransactionT **transacoes, int quantidade_transacoes)
 {
     if (inicio != fim) {
@@ -307,7 +303,7 @@ int visao_equivalente(int *escalonacao, int inicio, int fim, TransactionT **tran
 
     return 0;
 }
-
+// Utilizado na busca de profundidade, caso um vertice já tenha sido visitado
 int vertice_visitado(int *nos_visitados, int vertice)
 {
     for (int i = 0; nos_visitados[i] != -2; i++) {
@@ -318,7 +314,7 @@ int vertice_visitado(int *nos_visitados, int vertice)
     
     return 0;
 }
-
+// Adiciona valor flag ao vertice visitado
 void adiciona_vertice_nos_visitados(int **nos_visitados, int vertice)
 {
     int i;
@@ -327,7 +323,7 @@ void adiciona_vertice_nos_visitados(int **nos_visitados, int vertice)
 
     (*nos_visitados)[i] = vertice;
 }
-
+// Descobre os valores vizinhos de um vertice
 int *pega_vizinhos_vertices(int **grafo, int vertice, int tamanho_grafo, int *num_vizinhos)
 {
     int *vizinhos = (int *)malloc(tamanho_grafo * sizeof(int));
@@ -340,7 +336,7 @@ int *pega_vizinhos_vertices(int **grafo, int vertice, int tamanho_grafo, int *nu
 
     return vizinhos;
 }
-
+// Array para guardar vertices visitados
 int *aloca_array_visitados(int tamanho)
 {
     int *array = (int *)malloc((tamanho + 1) * sizeof(int));
@@ -353,7 +349,7 @@ int *aloca_array_visitados(int tamanho)
 
     return array;
 }
-
+// Função para verificar se existe ciclo no grafo atraves da busca de profundidade
 int tem_ciclo(int **grafo, int vertice, int tamanho_grafo, int *nos_visitados)
 {
     if (vertice_visitado(nos_visitados, vertice)) {
