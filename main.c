@@ -162,7 +162,7 @@ int **aloca_grafo(int numero_vertices, int *tarefa_escalonada, int numero_transa
         }
     }
 
-    for (int j = 0; j < numero_vertices; j++) {
+    for (int j = 0; j < numero_transacoes; j++) {
         TransactionT *transacao_a = transacoes[j];
         if (!id_esta_no_array(tarefa_escalonada, transacao_a->identificador, numero_vertices) || operacao_commit(transacao_a)) {
             continue;
@@ -236,27 +236,6 @@ int *pega_vizinhos_vertices(int **grafo, int vertice, int tamanho_grafo, int *nu
     return vizinhos;
 }
 
-int tem_ciclo(int **grafo, int vertice, int tamanho_grafo, int **nos_visitados)
-{
-    if (vertice_visitado((*nos_visitados), vertice)) {
-        return 1;
-    }
-    adiciona_vertice_nos_visitados(nos_visitados, vertice);
-
-    int resultado = 0;
-    int num_vizinhos = 0;
-    int *vizinhos = pega_vizinhos_vertices(grafo, vertice, tamanho_grafo, &num_vizinhos);
-    // para cada vizinho, chamo busca em profundidade
-    for (int i = 0; i < num_vizinhos; i++) {
-        resultado = tem_ciclo(grafo, vizinhos[i], tamanho_grafo, nos_visitados);
-        if (resultado == 1) {
-            return resultado;
-        }
-    }
-
-    return resultado;
-}
-
 int *aloca_array_visitados(int tamanho)
 {
     int *array = (int *)malloc((tamanho + 1) * sizeof(int));
@@ -268,6 +247,33 @@ int *aloca_array_visitados(int tamanho)
     array[tamanho] = -2;
 
     return array;
+}
+
+int tem_ciclo(int **grafo, int vertice, int tamanho_grafo, int *nos_visitados)
+{
+    if (vertice_visitado(nos_visitados, vertice)) {
+        return 1;
+    }
+    adiciona_vertice_nos_visitados(&nos_visitados, vertice);
+
+    int *nos_visitados_copia = aloca_array_visitados(tamanho_grafo * tamanho_grafo);
+
+    for(int i = 0; nos_visitados[i] != -2; i++) {
+        nos_visitados_copia[i] = nos_visitados[i];
+    }
+
+    int resultado = 0;
+    int num_vizinhos = 0;
+    int *vizinhos = pega_vizinhos_vertices(grafo, vertice, tamanho_grafo, &num_vizinhos);
+    // para cada vizinho, chamo busca em profundidade
+    for (int i = 0; i < num_vizinhos; i++) {
+        resultado = tem_ciclo(grafo, vizinhos[i], tamanho_grafo, nos_visitados_copia);
+        if (resultado == 1) {
+            return resultado;
+        }
+    }
+
+    return resultado;
 }
 
 int main() {
@@ -292,13 +298,14 @@ int main() {
 
         grafo = aloca_grafo(tamanho_array, tarefa_escalonada, tamanho, transacoes);
 
-        int *nos_visitados = aloca_array_visitados(tamanho_array);
+        int *nos_visitados = aloca_array_visitados(tamanho_array * tamanho_array);
         
-        int ciclo = tem_ciclo(grafo, 0, tamanho_array, &nos_visitados);
-
+        int ciclo = tem_ciclo(grafo, 0, tamanho_array, nos_visitados);
         if (ciclo) {
             printf("NS ");
+            // printf("tem ciclo ");
         }else{
+            // printf("n tem ciclo");
             printf("SS ");
         }
 
@@ -309,6 +316,7 @@ int main() {
         }
 
         printf("\n");
+        // imprime_grafo(grafo, tamanho_array);
     }
 
 }
