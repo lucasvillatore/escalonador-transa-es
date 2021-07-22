@@ -249,6 +249,9 @@ int tem_ciclo(int **grafo, int vertice, int tamanho_grafo, int **nos_visitados)
     // para cada vizinho, chamo busca em profundidade
     for (int i = 0; i < num_vizinhos; i++) {
         resultado = tem_ciclo(grafo, vizinhos[i], tamanho_grafo, nos_visitados);
+        if (resultado == 1) {
+            return resultado;
+        }
     }
 
     return resultado;
