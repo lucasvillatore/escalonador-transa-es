@@ -23,11 +23,13 @@ int **aloca_grafo(int numero_vertices, int *tarefa_escalonada, int numero_transa
 ```
 int tem_ciclo(int **grafo, int vertice, int tamanho_grafo, int **nos_visitados)
 ```
+```
+```
+**visao_equivalente:** Nessa função ocorre a permutação das transações presentes no escalonamento (ex:[1,2],[2,1] ) e chama a função testa_visao_equivalente.
+```
+```
+**testa_visao_equivalente:** A partir das operações em memoria e do escalonamento dado (ex:[1,2],[2,1] ) monta agendas e realiza os testes para verificar equivalencia, a regra nº 2 verifica se é leitura em seguinda permuta com as outras operações verificando se o identificador é diferente, se é uma escrita e se é no mesmo atributo para verificar a partir do tempo das duas se a ordem da agenda original foi violada. A regra Nº 3 para cada ultima escrita numa Tansação(i) é verificada se permaceu como ultima operação da mesma transação na agenda S'.
 
-### Falar que implementamos o algoritmo 1
-
-
-### Falar que não implementamos o algoritmo 2
 
 
 
