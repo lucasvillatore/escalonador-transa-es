@@ -16,7 +16,7 @@ TransactionT *criaTransacao(int tempo, int identificador, char operacao, char at
 {
     TransactionT *transacao = (TransactionT *)malloc(sizeof(TransactionT) * 50);
 
-    transacao->tempo = tempo - 1;
+    transacao->tempo = tempo;
     transacao->identificador = identificador;
     transacao->operacao = operacao;
     transacao->atributo = atributo;
@@ -57,7 +57,7 @@ int operacao_commit(TransactionT *transacao)
     return transacao->operacao == 'C' ? 1 : 0;
 }
 
-TransactionT **leituraArquivo(int *limiar, int *numero_vertices, EscalonadorT ***escalonador, int *numero_escalonacoes) 
+TransactionT **leituraArquivo(int *limiar, EscalonadorT ***escalonador, int *numero_escalonacoes) 
 {
     TransactionT **transacoes;
     transacoes = (TransactionT **)malloc((*limiar) * sizeof(TransactionT *));
@@ -77,9 +77,6 @@ TransactionT **leituraArquivo(int *limiar, int *numero_vertices, EscalonadorT **
     while(scanf("%d", &tempo) != EOF) {
         fscanf(stdin, "%d %c %c", &identificador, &operacao, &atributo);
 
-        if (identificador > (*numero_vertices)) {
-            (*numero_vertices) = identificador;
-        }
         if (tempo >= (*limiar)) {
             (*limiar) *= 2;
             transacoes = (TransactionT **)realloc(transacoes,(*limiar) * sizeof(TransactionT *));
@@ -121,7 +118,7 @@ TransactionT **leituraArquivo(int *limiar, int *numero_vertices, EscalonadorT **
     }
 
     (*numero_escalonacoes) = escalonacao;
-    (*limiar) = tempo;
+    (*limiar) = indice;
     return transacoes;
 }
 
@@ -272,24 +269,23 @@ int *aloca_array_visitados(int tamanho)
 
 int main() {
     int tamanho = 10;
-    int numero_vertices = 0;
     int numero_escalonacoes = 10;
     
     int **escalonadores = (int **)malloc(sizeof(int *) * numero_escalonacoes);
 
     int **grafo;
 
-    TransactionT **transacoes = leituraArquivo(&tamanho, &numero_vertices, &escalonadores, &numero_escalonacoes);
+    TransactionT **transacoes = leituraArquivo(&tamanho, &escalonadores, &numero_escalonacoes);
 
     for (int i = 0; i < numero_escalonacoes; i++) {
         int *tarefa_escalonada = escalonadores[i];
         int tamanho_array = conta_tamanho_array(tarefa_escalonada);
         int k = 0;
-        printf("%d ", i + 1);
+        // printf("%d ", i + 1);
         for (k = 0; k < tamanho_array - 1; k++) {
-            printf("%d,", tarefa_escalonada[k]);
+            // printf("%d,", tarefa_escalonada[k]);
         }
-        printf("%d ", tarefa_escalonada[k]);
+        // printf("%d ", tarefa_escalonada[k]);
 
         grafo = aloca_grafo(tamanho_array, tarefa_escalonada, tamanho, transacoes);
 
@@ -297,19 +293,22 @@ int main() {
         
         int ciclo = tem_ciclo(grafo, 0, tamanho_array, &nos_visitados);
 
+        imprime_grafo(grafo, tamanho_array);
         if (ciclo) {
-            printf("NS ");
+            printf("tem ciclo\n");
+            // printf("NS ");
         }else{
-            printf("SS ");
+            printf("não tem ciclo\n");
+            // printf("SS ");
         }
 
         if (!ciclo || visao_equivalente(grafo, tarefa_escalonada)) {
-            printf("SV");
+            // printf("SV");
         }else {
-            printf("NV");
+            // printf("NV");
         }
 
-        printf("\n");
+        // printf("\n");
     }
 
 }
