@@ -281,11 +281,11 @@ int main() {
         int *tarefa_escalonada = escalonadores[i];
         int tamanho_array = conta_tamanho_array(tarefa_escalonada);
         int k = 0;
-        // printf("%d ", i + 1);
+        printf("%d ", i + 1);
         for (k = 0; k < tamanho_array - 1; k++) {
-            // printf("%d,", tarefa_escalonada[k]);
+            printf("%d,", tarefa_escalonada[k]);
         }
-        // printf("%d ", tarefa_escalonada[k]);
+        printf("%d ", tarefa_escalonada[k]);
 
         grafo = aloca_grafo(tamanho_array, tarefa_escalonada, tamanho, transacoes);
 
@@ -293,22 +293,19 @@ int main() {
         
         int ciclo = tem_ciclo(grafo, 0, tamanho_array, &nos_visitados);
 
-        imprime_grafo(grafo, tamanho_array);
         if (ciclo) {
-            printf("tem ciclo\n");
-            // printf("NS ");
+            printf("NS ");
         }else{
-            printf("não tem ciclo\n");
-            // printf("SS ");
+            printf("SS ");
         }
 
         if (!ciclo || visao_equivalente(grafo, tarefa_escalonada)) {
-            // printf("SV");
+            printf("SV");
         }else {
-            // printf("NV");
+            printf("NV");
         }
 
-        // printf("\n");
+        printf("\n");
     }
 
 }
