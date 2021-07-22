@@ -73,6 +73,7 @@ TransactionT **leituraArquivo(int *limiar, int *numero_vertices, EscalonadorT **
     int escalonacao = 0; //controla a escalonacao atual
     (*escalonador)[escalonacao] = (int *)malloc(sizeof(int) * tamanho_array);
 
+    int indice = 0;
     while(scanf("%d", &tempo) != EOF) {
         fscanf(stdin, "%d %c %c", &identificador, &operacao, &atributo);
 
@@ -89,9 +90,9 @@ TransactionT **leituraArquivo(int *limiar, int *numero_vertices, EscalonadorT **
             }
         }
         TransactionT *transacao = criaTransacao(tempo, identificador, operacao, atributo);
-        transacoes[tempo - 1] = transacao;
+        transacoes[indice] = transacao;
 
-        if (operacao_commit(transacoes[tempo - 1]) == 1) {
+        if (operacao_commit(transacoes[indice]) == 1) {
             numero_commits--;
         }
         if (!id_esta_no_array((*escalonador)[escalonacao], transacao->identificador, tamanho_array)) {
@@ -116,6 +117,7 @@ TransactionT **leituraArquivo(int *limiar, int *numero_vertices, EscalonadorT **
             
             (*escalonador)[escalonacao] = (int *)malloc(sizeof(int) * tamanho_array);
         }
+        indice++;
     }
 
     (*numero_escalonacoes) = escalonacao;
