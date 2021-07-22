@@ -198,8 +198,17 @@ int conta_tamanho_array(int *array)
     return j;
 }
 
-int visao_equivalente(int **grafo, int *tarefa)
+int visao_equivalente(TransactionT **transacoes, int *escalonadores, int tamanho_escalonadores, int quantidade_transacoes)
 {
+    return 0;
+
+    for (int i = 0; i < tamanho_escalonadores; i++) {
+        if (id_esta_no_array(escalonadores, transacoes[i]->identificador, tamanho_escalonadores)) {
+
+            printf("permutar isso aqui = ");
+            mostraTransacao(transacoes[i]);
+        }
+    }
     return 0;
 }
 
@@ -303,20 +312,17 @@ int main() {
         int ciclo = tem_ciclo(grafo, 0, tamanho_array, nos_visitados);
         if (ciclo) {
             printf("NS ");
-            // printf("tem ciclo ");
         }else{
-            // printf("n tem ciclo");
             printf("SS ");
         }
 
-        if (!ciclo || visao_equivalente(grafo, tarefa_escalonada)) {
+        if (!ciclo || visao_equivalente(transacoes, tarefa_escalonada, tamanho_array, tamanho)) {
             printf("SV");
         }else {
             printf("NV");
         }
 
         printf("\n");
-        // imprime_grafo(grafo, tamanho_array);
     }
 
 }
