@@ -32,6 +32,11 @@ int testa_visao_equivalente(TransactionT **transacoes, int tamanho_transacoes, i
 ```
 **testa_visao_equivalente:** A partir das operações em memoria e do escalonamento dado (ex:[1,2],[2,1] ) monta agendas e realiza os testes para verificar equivalencia, a regra nº 2 verifica se é leitura em seguinda permuta com as outras operações verificando se o identificador é diferente, se é uma escrita e se é no mesmo atributo para verificar a partir do tempo das duas se a ordem da agenda original foi violada. A regra Nº 3 para cada ultima escrita numa Tansação(i) é verificada se permaceu como ultima operação da mesma transação na agenda S'.
 
+Como executar:
 
-
+```bash
+$ make
+$ ./escalona < entradas/input1.in > output.out
+$ diff output.out entradas/input1.out
+```
 

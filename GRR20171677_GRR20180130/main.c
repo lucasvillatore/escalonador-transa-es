@@ -280,7 +280,7 @@ int testa_visao_equivalente(TransactionT **transacoes, int tamanho_transacoes, i
 
 }
 
-//Ocorre a permutação das transações presentes no escalonamento (ex:[1,2],[2,1] ) e chama a função testa_visao_equivalente.
+//Ocorre a permutação das transações presentes no escalonamento (ex:[1,2],[2,1] ) e chama a função testa_visao_equivalente para essas permutações.
 int visao_equivalente(int *escalonacao, int inicio, int fim, TransactionT **transacoes, int quantidade_transacoes)
 {
     if (inicio != fim) {
@@ -323,7 +323,7 @@ void adiciona_vertice_nos_visitados(int **nos_visitados, int vertice)
 
     (*nos_visitados)[i] = vertice;
 }
-// Descobre os valores vizinhos de um vertice
+// Descobre os vizinhos de um vertice
 int *pega_vizinhos_vertices(int **grafo, int vertice, int tamanho_grafo, int *num_vizinhos)
 {
     int *vizinhos = (int *)malloc(tamanho_grafo * sizeof(int));
